@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talkify - StudyMate Matchmaking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --card: #ffffff;
+            --text-dark: #111827;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #111827 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: var(--dark);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: #d1d5db;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .auth-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .auth-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #d1d5db;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+            color: white;
+            margin-left: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        /* Match Cards */
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .match-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+
+        .match-card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .match-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .match-score {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .match-card-body {
+            padding: 1.5rem;
+        }
+
+        .match-info {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .match-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .common-interests {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .common-interests-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .interests-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .interest-tag {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .match-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .match-actions button {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .match-actions .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .match-actions .btn-secondary {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+
+        .profile-name h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .profile-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-item-label {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-item-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Request Cards */
+        .request-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .request-info {
+            flex: 1;
+        }
+
+        .request-from {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .request-details {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Sessions Grid */
+        .sessions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .session-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border-top: 4px solid var(--primary);
+        }
+
+        .session-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .session-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .session-info-item {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .session-label {
+            font-weight: 600;
+            color: var(--text-light);
+            min-width: 100px;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-dark);
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+
+            .match-actions {
+                flex-direction: column;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo" onclick="showHome()">🎓 Talkify</div>
+            <ul>
+                <li><a onclick="showHome()">Home</a></li>
+                <li><a onclick="switchTab('matching')">Matchmaking</a></li>
+                <li><a onclick="switchTab('sessions')">Sessions</a></li>
+                <li><a onclick="switchTab('events')">Events</a></li>
+                <li><button class="auth-btn" id="authBtn" onclick="toggleAuth()">Login</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <div class="hero" id="heroSection">
+            <h1>🎓 Talkify</h1>
+            <p>Find Your Perfect Study Partner | Share Knowledge | Build Networks</p>
+            <p style="font-size: 1rem; margin-top: 1rem; opacity: 0.8;">Join thousands of students discovering meaningful collaborations</p>
+        </div>
+
+        <div class="container">
+            <!-- Auth Section -->
+            <div id="authSection" class="card">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="tab-btn" onclick="switchAuthTab('register')">Register</button>
+                </div>
+
+                <div id="login" class="tab-content active">
+                    <h2>Login to Talkify</h2>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+
+                <div id="register" class="tab-content">
+                    <h2>Create Your Account</h2>
+                    <form onsubmit="handleRegister(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regUsername">Username</label>
+                                <input type="text" id="regUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regPassword">Password</label>
+                                <input type="password" id="regPassword" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regFullName">Full Name</label>
+                            <input type="text" id="regFullName" required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regEmail">Email</label>
+                                <input type="email" id="regEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regGender">Gender</label>
+                                <select id="regGender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regBranch">Branch</label>
+                                <select id="regBranch" required onchange="updateSubjects()">
+                                    <option value="">Select Branch</option>
+                                    <option value="CSE">CSE</option>
+                                    <option value="IT">IT</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="EE">EE</option>
+                                    <option value="ME">ME</option>
+                                    <option value="CE">CE</option>
+                                    <option value="AIML">AIML</option>
+                                    <option value="DSE">DSE</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="regSubject">Subject</label>
+                                <select id="regSubject" required>
+                                    <option value="">Select Subject</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="regSemester">Semester</label>
+                                <input type="number" id="regSemester" min="1" max="10" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regHobbies">Hobbies (comma-separated)</label>
+                                <input type="text" id="regHobbies" placeholder="e.g., Coding, Gaming, Music">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regBio">Bio</label>
+                            <textarea id="regBio" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Dashboard (Hidden by default) -->
+            <div id="dashboard" style="display: none;">
+                <!-- Profile Section -->
+                <div id="profileSection" class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-name">
+                            <h1 id="profileName">Welcome!</h1>
+                            <div class="profile-subtitle" id="profileSubtitle">Branch - Subject</div>
+                        </div>
+                        <button class="btn btn-danger" onclick="handleLogout()">Logout</button>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-item">
+                            <div class="profile-item-label">Email</div>
+                            <div class="profile-item-value" id="profileEmail">user@email.com</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-item-label">Semester</div>
+                            <div class="profile-item-value" id="profileSemester">1</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-item-label">Branch</div>
+                            <div class="profile-item-value" id="profileBranch">CSE</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-item-label">Hobbies</div>
+                            <div class="profile-item-value" id="profileHobbies">None</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matchmaking Section -->
+                <div id="matchingSection" class="card" style="display: none;">
+                    <h2>🔍 Find Study Partners</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchMatchTab('matches')">Your Matches</button>
+                        <button class="tab-btn" onclick="switchMatchTab('requests')">Connection Requests</button>
+                        <button class="tab-btn" onclick="generateMatches()">🔄 Generate New Matches</button>
+                    </div>
+
+                    <div id="matches" class="tab-content active">
+                        <div id="matchesContainer"></div>
+                    </div>
+
+                    <div id="requests" class="tab-content">
+                        <div id="requestsContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Sessions Section -->
+                <div id="sessionsSection" class="card" style="display: none;">
+                    <h2>📚 Study Sessions</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchSessionTab('allSessions')">All Sessions</button>
+                        <button class="tab-btn" onclick="switchSessionTab('mySessions')">My Sessions</button>
+                        <button class="tab-btn" onclick="switchSessionTab('collaborativeSessions')">Collaborative</button>
+                        <button class="tab-btn" onclick="switchSessionTab('createSession')">Create Session</button>
+                    </div>
+
+                    <div id="allSessions" class="tab-content active">
+                        <div id="sessionsContainer"></div>
+                    </div>
+
+                    <div id="mySessions" class="tab-content">
+                        <div id="mySessionsContainer"></div>
+                    </div>
+
+                    <div id="collaborativeSessions" class="tab-content">
+                        <div id="collaborativeSessionsContainer"></div>
+                    </div>
+
+                    <div id="createSession" class="tab-content">
+                        <form onsubmit="handleCreateSession(event)">
+                            <div class="form-group">
+                                <label for="sessionTopic">Topic</label>
+                                <input type="text" id="sessionTopic" placeholder="e.g., C Programming Fundamentals" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sessionLocation">Location</label>
+                                <input type="text" id="sessionLocation" placeholder="e.g., Library Room 101" required>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="sessionTime">Date & Time</label>
+                                    <input type="datetime-local" id="sessionTime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sessionDuration">Duration (minutes)</label>
+                                    <input type="number" id="sessionDuration" min="15" value="60" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Session</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Events Section -->
+                <div id="eventsSection" class="card" style="display: none;">
+                    <h2>🎉 Campus Events</h2>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchEventTab('eventsList')">Events</button>
+                        <button class="tab-btn" onclick="switchEventTab('addEvent')">Add Event</button>
+                    </div>
+
+                    <div id="eventsList" class="tab-content active">
+                        <div id="eventsContainer"></div>
+                    </div>
+
+                    <div id="addEvent" class="tab-content">
+                        <form onsubmit="handleAddEvent(event)">
+                            <div class="form-group">
+                                <label for="eventName">Event Name</label>
+                                <input type="text" id="eventName" required>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="eventField">Field</label>
+                                    <input type="text" id="eventField" placeholder="e.g., Sports, Tech, Arts" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventDate">Date</label>
+                                    <input type="date" id="eventDate" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Event</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Match Profile Modal -->
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Profile Details</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="matchModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let users = JSON.parse(localStorage.getItem('talkifyUsers')) || [];
+        let sessions = JSON.parse(localStorage.getItem('talkifySessions')) || [];
+        let events = JSON.parse(localStorage.getItem('talkifyEvents')) || [];
+        let matches = [];
+        let currentUser = null;
+        let currentUserIndex = -1;
+
+        // Subject Mapping
+        const subjectsMap = {
+            'CSE': ['C Programming', 'Python', 'Java', 'Data Structures', 'Algorithms', 'DBMS'],
+            'IT': ['C Programming', 'Python', 'Web Development', 'Networking', 'DBMS'],
+            'ECE': ['Digital Electronics', 'Microprocessors', 'VLSI', 'Embedded Systems'],
+            'EE': ['Circuit Theory', 'Power Systems', 'Control Systems'],
+            'ME': ['Thermodynamics', 'Mechanics', 'Manufacturing'],
+            'CE': ['Structural Analysis', 'Surveying', 'Concrete Technology'],
+            'AIML': ['Python', 'Machine Learning', 'Deep Learning'],
+            'DSE': ['Statistics', 'Python', 'Data Mining']
+        };
+
+        // MATCHMAKING ALGORITHM
+        function calculateMatchScore(user1, user2) {
+            let score = 0;
+            const details = {
+                commonSubjects: [],
+                commonHobbies: [],
+                commonSemester: false,
+                commonBranch: false
+            };
+
+            // Same branch: 40 points
+            if (user1.branch === user2.branch) {
+                score += 40;
+                details.commonBranch = true;
+            }
+
+            // Same subject: 30 points
+            if (user1.subject === user2.subject) {
+                score += 30;
+                details.commonSubjects.push(user1.subject);
+            }
+
+            // Adjacent or same semester: 15 points
+            if (Math.abs(user1.semester - user2.semester) <= 1) {
+                score += 15;
+                details.commonSemester = true;
+            }
+
+            // Common hobbies
+            const hobbies1 = (user1.hobbies || '').split(',').map(h => h.trim().toLowerCase());
+            const hobbies2 = (user2.hobbies || '').split(',').map(h => h.trim().toLowerCase());
+            const common = hobbies1.filter(h => hobbies2.includes(h));
+            
+            if (common.length > 0) {
+                score += 10 + (common.length * 2);
+                details.commonHobbies = common;
+            }
+
+            return { score: Math.min(score, 100), details };
+        }
+
+        function generateMatches() {
+            if (!currentUser) {
+                showAlert('❌ Please login first!', 'error');
+                return;
+            }
+
+            matches = [];
+            for (let i = 0; i < users.length; i++) {
+                if (users[i].username === currentUser.username) continue;
+
+                const { score, details } = calculateMatchScore(currentUser, users[i]);
+                if (score > 30) {
+                    matches.push({
+                        user: users[i],
+                        index: i,
+                        score,
+                        details
+                    });
+                }
+            }
+
+            // Sort by score descending
+            matches.sort((a, b) => b.score - a.score);
+            showAlert(`✅ Found ${matches.length} potential study partners!`, 'success');
+            displayMatches();
+        }
+
+        function displayMatches() {
+            const container = document.getElementById('matchesContainer');
+            
+            if (matches.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-text">No matches found yet.</div>
+                        <p style="color: #9ca3af;">Try updating your profile or check back later!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value">${matches.length}</div>
+                    <div class="stat-label">Potential Partners</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${matches[0].score.toFixed(0)}%</div>
+                    <div class="stat-label">Top Match</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${(matches.reduce((a, b) => a + b.score, 0) / matches.length).toFixed(0)}%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div><div class="matches-grid">`;
+
+            matches.forEach(match => {
+                const { user, score, details } = match;
+                html += `
+                    <div class="match-card">
+                        <div class="match-card-header">
+                            <div>
+                                <div class="match-name">${user.fullName}</div>
+                                <div style="font-size: 0.9rem; opacity: 0.9;">@${user.username}</div>
+                            </div>
+                            <div class="match-score">${score.toFixed(0)}%</div>
+                        </div>
+                        <div class="match-card-body">
+                            <div class="match-info">
+                                <div class="match-info-item">
+                                    <span class="info-label">Branch:</span>
+                                    <span class="info-value">${user.branch}</span>
+                                </div>
+                                <div class="match-info-item">
+                                    <span class="info-label">Subject:</span>
+                                    <span class="info-value">${user.subject}</span>
+                                </div>
+                                <div class="match-info-item">
+                                    <span class="info-label">Semester:</span>
+                                    <span class="info-value">${user.semester}</span>
+                                </div>
+                            </div>
+                            
+                            ${details.commonHobbies.length > 0 ? `
+                                <div class="common-interests">
+                                    <div class="common-interests-title">🎯 Common Hobbies</div>
+                                    <div class="interests-list">
+                                        ${details.commonHobbies.map(h => `<span class="interest-tag">${h}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-size: 0.9rem;">
+                                <strong>Bio:</strong> ${user.bio || 'Not specified'}
+                            </div>
+                            
+                            <div class="match-actions">
+                                <button class="btn btn-primary" onclick="sendConnectionRequest(${match.index})">💌 Connect</button>
+                                <button class="btn btn-secondary" onclick="openMatchProfile(${match.index})">👤 View</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function sendConnectionRequest(userIndex) {
+            if (!currentUser) return;
+            
+            const request = {
+                from: currentUser.username,
+                to: users[userIndex].username,
+                date: new Date().toLocaleDateString(),
+                status: 'pending'
+            };
+
+            let requests = JSON.parse(localStorage.getItem('talkifyRequests')) || [];
+            requests.push(request);
+            localStorage.setItem('talkifyRequests', JSON.stringify(requests));
+            
+            showAlert(`✅ Connection request sent to ${users[userIndex].fullName}!`, 'success');
+        }
+
+        function openMatchProfile(userIndex) {
+            const user = users[userIndex];
+            const match = matches.find(m => m.index === userIndex);
+            
+            const modal = document.getElementById('matchModal');
+            const body = document.getElementById('matchModalBody');
+            
+            body.innerHTML = `
+                <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 2rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">${user.fullName}</h3>
+                    <p style="opacity: 0.9;">Match Score: ${match.score.toFixed(0)}%</p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Email</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.email}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Gender</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.gender}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Branch</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.branch}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Subject</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.subject}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Semester</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.semester}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #6b7280; font-size: 0.9rem;">Hobbies</strong>
+                        <p style="color: #111827; margin-top: 0.25rem;">${user.hobbies || 'Not specified'}</p>
+                    </div>
+                </div>
+                <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                    <strong style="color: #6b7280; font-size: 0.9rem;">Bio</strong>
+                    <p style="color: #111827; margin-top: 0.5rem;">${user.bio || 'No bio provided'}</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="sendConnectionRequest(${userIndex}); closeModal();">💌 Send Connection Request</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('matchModal').classList.remove('show');
+        }
+
+        // Sessions Management
+        function handleCreateSession(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                showAlert('❌ Please login first!', 'error');
+                return;
+            }
+
+            const newSession = {
+                host: currentUser.username,
+                coHost: '',
+                topic: document.getElementById('sessionTopic').value,
+                location: document.getElementById('sessionLocation').value,
+                time: document.getElementById('sessionTime').value,
+                duration: document.getElementById('sessionDuration').value,
+                isCollaborative: false
+            };
+
+            sessions.push(newSession);
+            localStorage.setItem('talkifySessions', JSON.stringify(sessions));
+            showAlert('✅ Session created successfully!', 'success');
+            e.target.reset();
+            loadSessions();
+        }
+
+        function loadSessions() {
+            const allContainer = document.getElementById('sessionsContainer');
+            const myContainer = document.getElementById('mySessionsContainer');
+            const collabContainer = document.getElementById('collaborativeSessionsContainer');
+
+            allContainer.innerHTML = '';
+            myContainer.innerHTML = '';
+            collabContainer.innerHTML = '';
+
+            if (sessions.length === 0) {
+                allContainer.innerHTML = '<div class="empty-state"><p>No sessions available yet.</p></div>';
+                return;
+            }
+
+            sessions.forEach(session => {
+                const html = `
+                    <div class="session-card">
+                        <div class="session-title">📚 ${session.topic}</div>
+                        <div class="session-info">
+                            <div class="session-info-item">
+                                <span class="session-label">Host:</span>
+                                <span>${session.host}${session.coHost ? ` & ${session.coHost}` : ''}</span>
+                            </div>
+                            <div class="session-info-item">
+                                <span class="session-label">Location:</span>
+                                <span>${session.location}</span>
+                            </div>
+                            <div class="session-info-item">
+                                <span class="session-label">Time:</span>
+                                <span>${new Date(session.time).toLocaleString()}</span>
+                            </div>
+                            <div class="session-info-item">
+                                <span class="session-label">Duration:</span>
+                                <span>${session.duration} minutes</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                allContainer.innerHTML += html;
+                
+                if (currentUser && session.host === currentUser.username) {
+                    myContainer.innerHTML += html;
+                }
+                
+                if (session.isCollaborative) {
+                    collabContainer.innerHTML += html;
+                }
+            });
+        }
+
+        // Events Management
+        function handleAddEvent(e) {
+            e.preventDefault();
+            const newEvent = {
+                name: document.getElementById('eventName').value,
+                field: document.getElementById('eventField').value,
+                date: document.getElementById('eventDate').value
+            };
+
+            events.push(newEvent);
+            localStorage.setItem('talkifyEvents', JSON.stringify(events));
+            showAlert('✅ Event added successfully!', 'success');
+            e.target.reset();
+            loadEvents();
+        }
+
+        function loadEvents() {
+            const container = document.getElementById('eventsContainer');
+            container.innerHTML = '';
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No events available yet.</p></div>';
+                return;
+            }
+
+            events.forEach(event => {
+                const html = `
+                    <div class="session-card">
+                        <div class="session-title">🎉 ${event.name}</div>
+                        <div class="session-info">
+                            <div class="session-info-item">
+                                <span class="session-label">Field:</span>
+                                <span>${event.field}</span>
+                            </div>
+                            <div class="session-info-item">
+                                <span class="session-label">Date:</span>
+                                <span>${new Date(event.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // Authentication
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                currentUser = user;
+                currentUserIndex = users.indexOf(user);
+                showDashboard();
+                showAlert(`✅ Welcome back, ${user.fullName}!`, 'success');
+                generateMatches();
+                loadSessions();
+                loadEvents();
+            } else {
+                showAlert('❌ Invalid credentials!', 'error');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            
+            if (users.find(u => u.username === username)) {
+                showAlert('❌ Username already exists!', 'error');
+                return;
+            }
+
+            const newUser = {
+                username,
+                password: document.getElementById('regPassword').value,
+                fullName: document.getElementById('regFullName').value,
+                email: document.getElementById('regEmail').value,
+                gender: document.getElementById('regGender').value,
+                branch: document.getElementById('regBranch').value,
+                subject: document.getElementById('regSubject').value,
+                semester: parseInt(document.getElementById('regSemester').value),
+                hobbies: document.getElementById('regHobbies').value,
+                bio: document.getElementById('regBio').value
+            };
+
+            users.push(newUser);
+            localStorage.setItem('talkifyUsers', JSON.stringify(users));
+            showAlert('✅ Registration successful! Please login.', 'success');
+            document.getElementById('registerForm')?.reset();
+            switchAuthTab('login');
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            currentUserIndex = -1;
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('heroSection').style.display = 'block';
+            document.getElementById('authBtn').textContent = 'Login';
+            showAlert('✅ Logged out successfully!', 'success');
+        }
+
+        function showDashboard() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('matchingSection').style.display = 'block';
+            document.getElementById('sessionsSection').style.display = 'block';
+            document.getElementById('eventsSection').style.display = 'block';
+            document.getElementById('authBtn').textContent = 'Logout';
+            document.getElementById('authBtn').onclick = handleLogout;
+            updateProfileDisplay();
+        }
+
+        function updateProfileDisplay() {
+            if (currentUser) {
+                document.getElementById('profileName').textContent = `Welcome, ${currentUser.fullName}!`;
+                document.getElementById('profileSubtitle').textContent = `${currentUser.branch} - ${currentUser.subject}`;
+                document.getElementById('profileEmail').textContent = currentUser.email;
+                document.getElementById('profileSemester').textContent = `Semester ${currentUser.semester}`;
+                document.getElementById('profileBranch').textContent = currentUser.branch;
+                document.getElementById('profileHobbies').textContent = currentUser.hobbies || 'Not specified';
+            }
+        }
+
+        // UI Helpers
+        function toggleAuth() {
+            if (currentUser) {
+                handleLogout();
+            } else {
+                switchTab('auth');
+            }
+        }
+
+        function showHome() {
+            if (!currentUser) {
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('heroSection').style.display = 'block';
+            }
+        }
+
+        function switchTab(tabName) {
+            if (tabName === 'auth') {
+                document.getElementById('authSection').style.display = 'block';
+            }
+        }
+
+        function switchAuthTab(tabName) {
+            document.querySelectorAll('#login, #register').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('#authSection .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchMatchTab(tabName) {
+            document.querySelectorAll('#matches, #requests').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('#matchingSection .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'requests') {
+                displayRequests();
+            }
+        }
+
+        function switchSessionTab(tabName) {
+            const tabs = document.querySelectorAll('#allSessions, #mySessions, #collaborativeSessions, #createSession');
+            tabs.forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('#sessionsSection .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchEventTab(tabName) {
+            document.querySelectorAll('#eventsList, #addEvent').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('#eventsSection .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateSubjects() {
+            const branch = document.getElementById('regBranch').value;
+            const subjectSelect = document.getElementById('regSubject');
+            
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+            (subjectsMap[branch] || []).forEach(subject => {
+                subjectSelect.innerHTML += `<option value="${subject}">${subject}</option>`;
+            });
+        }
+
+        function displayRequests() {
+            const container = document.getElementById('requestsContainer');
+            let requests = JSON.parse(localStorage.getItem('talkifyRequests')) || [];
+            const myRequests = requests.filter(r => r.to === currentUser.username && r.status === 'pending');
+
+            if (myRequests.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No pending connection requests.</p></div>';
+                return;
+            }
+
+            let html = '';
+            myRequests.forEach((req, idx) => {
+                const sender = users.find(u => u.username === req.from);
+                html += `
+                    <div class="request-card">
+                        <div class="request-info">
+                            <div class="request-from">📨 ${sender.fullName} (@${sender.username})</div>
+                            <div class="request-details">${sender.branch} - ${sender.subject} | Semester ${sender.semester}</div>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn" style="background: var(--success); color: white; padding: 0.5rem 1rem;" onclick="acceptRequest(${idx})">Accept</button>
+                            <button class="btn" style="background: var(--danger); color: white; padding: 0.5rem 1rem;" onclick="rejectRequest(${idx})">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function acceptRequest(idx) {
+            let requests = JSON.parse(localStorage.getItem('talkifyRequests')) || [];
+            requests[idx].status = 'accepted';
+            localStorage.setItem('talkifyRequests', JSON.stringify(requests));
+            showAlert('✅ Connection accepted!', 'success');
+            displayRequests();
+        }
+
+        function rejectRequest(idx) {
+            let requests = JSON.parse(localStorage.getItem('talkifyRequests')) || [];
+            requests.splice(idx, 1);
+            localStorage.setItem('talkifyRequests', JSON.stringify(requests));
+            showAlert('❌ Connection rejected.', 'info');
+            displayRequests();
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            document.querySelector('main').prepend(alertDiv);
+            setTimeout(() => alertDiv.remove(), 4000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSessions();
+            loadEvents();
+        });
+    </script>
+</body>
+</html>
