@@ -1,0 +1,688 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_USERS 400
+#define MAX_SESSIONS 400
+#define MAX_EVENTS 200
+#define TIME_LIMIT 120   
+
+typedef struct {
+char username[50];
+char password[50];
+char fullName[100];
+ char gender[30];
+char email[100];
+char branch[120];
+ char subject[120];
+char hobbies[300];   
+int semester;
+ char bio[200];
+} User;
+
+typedef struct {
+char host[50];
+char topic[200];
+char location[80];
+  char time[40];
+ char duration[20];   
+} Session;
+
+typedef struct {
+  char name[150];
+char field[80];
+ char date[40];
+} Event;
+User users[MAX_USERS];
+Session sessions[MAX_SESSIONS];
+Event events[MAX_EVENTS];
+int userCount = 0, sessionCount = 0, eventCount = 0;
+
+char currentUser[50] = "";
+char currentBranch[120] = "";
+char currentSubject[120] = "";
+
+const char *branches[] = {
+ "Computer Science Engineering (CSE)",
+"Information Technology (IT)",
+"Electronics & Communication (ECE)",
+"Electrical Engineering (EE)",
+"Mechanical Engineering (ME)",
+"Civil Engineering (CE)",
+"Artificial Intelligence & ML (AIML)",
+"Data Science Engineering (DSE)",
+"MBBS",
+"Nursing",
+"Pharmacy",
+"Physiotherapy",
+"Health Science",
+"BBA",
+"MBA",
+"Commerce (B.Com)",
+"BA-LLB",
+ "BBA-LLB",
+"LLB",
+ "Fashion Design",
+"Interior Design",
+"Graphic Design",
+"Fine Arts"
+};
+int branchCount = sizeof(branches) / sizeof(branches[0]);
+
+const char *subjects_CS[] = 
+{
+"C Programming", "Python", "Java", "Linux",
+"Data Structures", "Algorithms", "DBMS", "OOPS", "Operating Systems", "AI & ML"
+};
+const char *subjects_IT[] = 
+{
+"C Programming", "Python", "Web Development", "Networking",
+ "DBMS", "Operating Systems", "Software Engineering", "Security"
+};
+const char *subjects_ECE[] = 
+{
+"Digital Electronics", "Signals & Systems", "Microprocessors",
+"Embedded Systems", "VLSI", "Control Systems", "Communication Systems"
+};
+const char *subjects_EE[] = 
+{
+"Circuit Theory", "Power Systems", "Control Systems",
+"Electrical Machines", "Power Electronics", "Measurements"
+};
+const char *subjects_ME[] = 
+{
+"Thermodynamics", "Manufacturing Technology", "Strength of Materials",
+ "Fluid Mechanics", "Automobile Engineering", "Mechatronics"
+};
+const char *subjects_CE[] = 
+{
+"Structural Analysis", "Building Materials", "Surveying",
+"Transportation Engineering", "Environmental Engineering", "Concrete Technology"
+};
+const char *subjects_AIML[] = 
+{
+"Python", "Machine Learning", "Deep Learning", "Data Mining",
+ "Neural Networks", "NLP", "Computer Vision"
+};
+const char *subjects_DSE[] = 
+{
+"Statistics", "Python", "Data Mining", "Data Visualization",
+"Big Data", "Machine Learning"
+};
+const char *subjects_MBBS[] = 
+{
+"Anatomy", "Physiology", "Biochemistry", "Microbiology", "Pathology"
+};
+const char *subjects_NURSING[] = 
+{
+ "Nursing Fundamentals", "Clinical Practice", "Pharmacology", "Community Health"
+};
+const char *subjects_PHARM[] = 
+{
+"Pharmacology", "Pharmaceutics", "Medicinal Chemistry", "Pharmacognosy"
+};
+const char *subjects_PHYSIO[] = 
+{
+ "Anatomy", "Physiotherapy Practice", "Biomechanics", "Rehabilitation"
+};
+const char *subjects_HS[] = 
+{
+"Public Health", "Health Informatics", "Nutrition", "Epidemiology"
+};
+const char *subjects_BBA[] = 
+{
+"Accounting", "Finance", "Marketing", "Human Resource Management", "Economics"
+};
+const char *subjects_MBA[] = 
+{
+"Business Strategy", "Finance", "Marketing", "Operations", "HR", "Entrepreneurship"
+};
+const char *subjects_COM[] = 
+{
+ "Accounting", "Business Law", "Economics", "Taxation", "Finance"
+};
+const char *subjects_LAW[] = 
+{
+"Constitutional Law", "Criminal Law", "Contract Law", "Family Law", "Corporate Law"
+};
+const char *subjects_DESIGN[] = 
+{
+"Graphic Design", "Fashion Illustration", "Photography",
+"UI/UX Design", "Drawing & Sketching", "Interior Space Planning"
+};
+const char *subjects_FA[] = 
+{
+    "Painting", "Sculpture", "Printmaking", "History of Art", "Drawing"
+};
+const char **subjectsMap[] =
+ {
+subjects_CS, subjects_IT, subjects_ECE, subjects_EE, subjects_ME, subjects_CE,
+subjects_AIML, subjects_DSE, subjects_MBBS, subjects_NURSING, subjects_PHARM,
+subjects_PHYSIO, subjects_HS, subjects_BBA, subjects_MBA, subjects_COM,
+subjects_LAW, subjects_LAW, subjects_LAW, subjects_DESIGN, subjects_DESIGN,
+subjects_DESIGN, subjects_FA
+};
+int subjectsCountMap[] = 
+{
+(int)(sizeof(subjects_CS)/sizeof(subjects_CS[0])),
+(int)(sizeof(subjects_IT)/sizeof(subjects_IT[0])),
+ (int)(sizeof(subjects_ECE)/sizeof(subjects_ECE[0])),
+(int)(sizeof(subjects_EE)/sizeof(subjects_EE[0])),
+(int)(sizeof(subjects_ME)/sizeof(subjects_ME[0])),
+ (int)(sizeof(subjects_CE)/sizeof(subjects_CE[0])),
+(int)(sizeof(subjects_AIML)/sizeof(subjects_AIML[0])),
+(int)(sizeof(subjects_DSE)/sizeof(subjects_DSE[0])),
+(int)(sizeof(subjects_MBBS)/sizeof(subjects_MBBS[0])),
+(int)(sizeof(subjects_NURSING)/sizeof(subjects_NURSING[0])),
+ (int)(sizeof(subjects_PHARM)/sizeof(subjects_PHARM[0])),
+(int)(sizeof(subjects_PHYSIO)/sizeof(subjects_PHYSIO[0])),
+(int)(sizeof(subjects_HS)/sizeof(subjects_HS[0])),
+ (int)(sizeof(subjects_BBA)/sizeof(subjects_BBA[0])),
+(int)(sizeof(subjects_MBA)/sizeof(subjects_MBA[0])),
+(int)(sizeof(subjects_COM)/sizeof(subjects_COM[0])),
+(int)(sizeof(subjects_LAW)/sizeof(subjects_LAW[0])),
+ (int)(sizeof(subjects_LAW)/sizeof(subjects_LAW[0])),
+(int)(sizeof(subjects_LAW)/sizeof(subjects_LAW[0])),
+(int)(sizeof(subjects_DESIGN)/sizeof(subjects_DESIGN[0])),
+ (int)(sizeof(subjects_DESIGN)/sizeof(subjects_DESIGN[0])),
+(int)(sizeof(subjects_DESIGN)/sizeof(subjects_DESIGN[0])),
+(int)(sizeof(subjects_FA)/sizeof(subjects_FA[0]))
+};
+const char *hobbiesMaster[] = 
+{
+"Football","Basketball","Cricket","Badminton","Athletics",
+"Swimming","Yoga","Gym","Dancing","Singing",
+"Guitar","Piano","Painting","Sketching","Photography",
+"Coding","Robotics","Debate","Reading","Chess"
+};
+int hobbyMasterCount = sizeof(hobbiesMaster)/sizeof(hobbiesMaster[0]);
+void loadFiles();
+void saveUsers();
+void saveSessions();
+void saveEvents();
+ void toLowerCase(const char *str, char *lower);
+void remove_pipes(char *s);
+ int branchSemesterMax(int branchIndex);
+void registerUser();
+int loginUser();
+void createSession();
+void viewSessions();
+void viewMatchingSessions();
+void showUserDetails(const char *hostName);
+ void filterSessions();
+void viewEvents();
+void addEvent();
+ void menu(); 
+void loadFiles() {
+  FILE *fu = fopen("users.txt", "r");
+FILE *fs = fopen("sessions.txt", "r");
+ FILE *fe = fopen("events.txt", "r");
+if (fu) {
+while (userCount < MAX_USERS) 
+{        
+char biobuf[200];
+int sem;
+int read = fscanf(fu, "%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%[^|]|%d|%[^\n]\n",
+users[userCount].username,
+  users[userCount].password,
+users[userCount].fullName,
+ users[userCount].gender,
+users[userCount].email,
+users[userCount].branch,
+ users[userCount].subject,
+users[userCount].hobbies,
+&sem,
+ biobuf);
+if (read != 10) break;
+users[userCount].semester = sem;
+strncpy(users[userCount].bio, biobuf, sizeof(users[userCount].bio)-1);
+users[userCount].bio[sizeof(users[userCount].bio)-1] = '\0';
+ userCount++;
+}
+fclose(fu);
+ }
+if (fs) {
+while (sessionCount < MAX_SESSIONS) {
+int read = fscanf(fs, "%[^|]|%[^|]|%[^|]|%[^|]|%[^\n]\n",
+sessions[sessionCount].host,
+ sessions[sessionCount].topic,
+sessions[sessionCount].location,
+sessions[sessionCount].time,
+sessions[sessionCount].duration);
+if (read != 5) break;
+sessionCount++;
+}
+ fclose(fs);
+}
+if (fe) {
+while (eventCount < MAX_EVENTS) {
+int read = fscanf(fe, "%[^|]|%[^|]|%[^\n]\n",
+events[eventCount].name,
+events[eventCount].field,
+events[eventCount].date);
+if (read != 3) break;
+eventCount++;
+}
+ fclose(fe);
+}
+}
+void saveUsers() 
+{
+FILE *fp = fopen("users.txt", "w");
+if (!fp) return;
+for (int i = 0; i < userCount; i++) {
+fprintf(fp, "%s|%s|%s|%s|%s|%s|%s|%s|%d|%s\n",
+users[i].username,
+users[i].password,
+users[i].fullName,
+users[i].gender,
+users[i].email,
+users[i].branch,
+users[i].subject,
+users[i].hobbies,
+users[i].semester,
+users[i].bio);
+}
+fclose(fp);
+}
+void saveSessions() {
+FILE *fp = fopen("sessions.txt", "w");
+if (!fp) return;
+for (int i = 0; i < sessionCount; i++) {
+fprintf(fp, "%s|%s|%s|%s|%s\n",
+sessions[i].host,
+sessions[i].topic,
+sessions[i].location,
+sessions[i].time,
+sessions[i].duration);
+}
+fclose(fp);
+}
+void saveEvents() {
+FILE *fp = fopen("events.txt", "w");
+if (!fp) return;
+for (int i = 0; i < eventCount; i++) {
+fprintf(fp, "%s|%s|%s\n",
+events[i].name,
+events[i].field,
+events[i].date);
+}
+fclose(fp);
+}
+void toLowerCase(const char *str, char *lower) {
+int i;
+for (i = 0; str[i]; i++) lower[i] = tolower((unsigned char)str[i]);
+lower[i] = '\0';
+}
+void remove_pipes(char *s) {
+char *src = s, *dst = s;
+while (*src) {
+if (*src != '|') {
+*dst++ = *src;
+}
+src++;
+}
+*dst = '\0';
+}
+int branchSemesterMax(int branchIndex) {
+const char *b = branches[branchIndex];
+if (strstr(b, "MBBS") || strstr(b, "Nursing") || strstr(b, "Pharmacy") ||
+strstr(b, "Physiotherapy") || strstr(b, "Health Science") || strstr(b, "LLB") ||
+strstr(b, "BA-LLB") || strstr(b, "BBA-LLB")) {
+return 10;
+}
+if (strstr(b, "BBA") || strstr(b, "MBA") || strstr(b, "Commerce")) {
+return 6;
+}
+return 8; 
+}
+void registerUser() {
+User u;
+int bchoice = -1;
+printf("\n=== REGISTER NEW USER ===\n");
+printf("Enter username (no spaces): ");
+scanf("%s", u.username);
+printf("Enter password (no spaces): ");
+scanf("%s", u.password);
+getchar(); 
+printf("Enter your full name: ");
+fgets(u.fullName, sizeof(u.fullName), stdin);
+u.fullName[strcspn(u.fullName, "\n")] = '\0';
+remove_pipes(u.fullName);
+printf("\nChoose gender:\n1. Male\n2. Female\n3. Other\nEnter choice: ");
+int gchoice;
+if (scanf("%d", &gchoice) != 1) { while(getchar()!='\n'); gchoice = 3; }
+if (gchoice == 1) strcpy(u.gender, "Male");
+else if (gchoice == 2) strcpy(u.gender, "Female");
+else strcpy(u.gender, "Other");
+printf("Enter email id: ");
+scanf("%s", u.email);
+remove_pipes(u.email);
+printf("\nChoose your branch/field:\n");
+for (int i = 0; i < branchCount; i++) {
+printf("%2d. %s\n", i+1, branches[i]);
+}
+printf("Enter choice (number): ");
+scanf("%d", &bchoice);
+if (bchoice < 1 || bchoice > branchCount) {
+printf("Invalid branch choice. Registration cancelled.\n");
+return;
+}
+strncpy(u.branch, branches[bchoice - 1], sizeof(u.branch)-1);
+u.branch[sizeof(u.branch)-1] = '\0';
+int scount = subjectsCountMap[bchoice - 1];
+const char **slist = subjectsMap[bchoice - 1];
+printf("\nChoose subject from %s:\n", branches[bchoice - 1]);
+for (int s = 0; s < scount; s++) {
+printf("%2d. %s\n", s+1, slist[s]);
+}
+printf("Enter choice (number): ");
+int schoice;
+scanf("%d", &schoice);
+if (schoice < 1 || schoice > scount) {
+printf("Invalid subject choice. Registration cancelled.\n");
+return;
+}
+strncpy(u.subject, slist[schoice - 1], sizeof(u.subject)-1);
+u.subject[sizeof(u.subject)-1] = '\0';
+remove_pipes(u.subject);
+printf("\nChoose your hobbies/activities (enter count then indices).\nAvailable hobbies:\n");
+for (int i = 0; i < hobbyMasterCount; i++) {
+printf("%2d. %s\n", i+1, hobbiesMaster[i]);
+}
+printf("Enter how many hobbies to choose (max 10): ");
+int hcount;
+scanf("%d", &hcount);
+if (hcount < 1) hcount = 1;
+if (hcount > 10) hcount = 10;
+char hobbies_buf[500] = "";
+printf("Now enter %d numbers (space or newline separated):\n", hcount);
+for (int i = 0; i < hcount; i++) {
+int idx;
+scanf("%d", &idx);
+if (idx >=1 && idx <= hobbyMasterCount) {
+if (strlen(hobbies_buf) > 0) strcat(hobbies_buf, ";");
+strcat(hobbies_buf, hobbiesMaster[idx-1]);
+}
+}
+strncpy(u.hobbies, hobbies_buf, sizeof(u.hobbies)-1);
+u.hobbies[sizeof(u.hobbies)-1] = '\0';
+remove_pipes(u.hobbies);
+int maxSem = branchSemesterMax(bchoice - 1);
+printf("\nEnter current semester (1 - %d): ", maxSem);
+int sem;
+if (scanf("%d", &sem) != 1) sem = 1;
+if (sem < 1) sem = 1;
+if (sem > maxSem) sem = maxSem;
+u.semester = sem;
+getchar(); 
+printf("\nEnter a short bio (one line) - avoid pipes '|': ");
+fgets(u.bio, sizeof(u.bio), stdin);
+u.bio[strcspn(u.bio, "\n")] = '\0';
+remove_pipes(u.bio);
+users[userCount++] = u;
+saveUsers();
+printf("\n Registration successful! Welcome %s (%s - %s)\n",
+u.username, u.branch, u.subject);
+}
+int loginUser() {
+char uname[50], pass[50];
+printf("\n=== LOGIN ===\n");
+printf("Username: ");
+scanf("%s", uname);
+printf("Password: ");
+scanf("%s", pass);
+for (int i = 0; i < userCount; i++) {
+if (strcmp(uname, users[i].username) == 0 &&
+strcmp(pass, users[i].password) == 0) {
+strcpy(currentUser, users[i].username);
+strcpy(currentBranch, users[i].branch);
+strcpy(currentSubject, users[i].subject);
+printf("\n Login successful. Welcome %s!\n", users[i].username);
+printf("Full Name: %s\nBranch: %s\nSubject: %s\nSemester: %d\nEmail: %s\nGender: %s\nHobbies: %s\nBio: %s\n",
+users[i].fullName, users[i].branch, users[i].subject, users[i].semester,
+users[i].email, users[i].gender, users[i].hobbies, users[i].bio);
+return 1;
+}
+}
+printf("\n Invalid credentials.\n");
+return 0;
+}
+void createSession() {
+if (strlen(currentUser) == 0) {
+printf("You must be logged in to create sessions.\n");
+return;
+}
+Session s;
+strcpy(s.host, currentUser);
+printf("\nEnter topic/subject for this session: ");
+getchar(); 
+fgets(s.topic, sizeof(s.topic), stdin);
+s.topic[strcspn(s.topic, "\n")] = '\0';
+remove_pipes(s.topic);
+printf("Enter location: ");
+fgets(s.location, sizeof(s.location), stdin);
+s.location[strcspn(s.location, "\n")] = '\0';
+remove_pipes(s.location);
+printf("Enter time (e.g., 4 PM or 2025-11-10 16:00): ");
+fgets(s.time, sizeof(s.time), stdin);
+s.time[strcspn(s.time, "\n")] = '\0';
+remove_pipes(s.time);
+printf("Enter duration (in minutes): ");
+scanf("%s", s.duration);
+sessions[sessionCount++] = s;
+saveSessions();
+printf("\n Session created by %s.\n", currentUser);
+}
+void viewSessions() {
+if (sessionCount == 0) {
+printf("\nNo sessions available.\n");
+return;
+}
+printf("\n--- All Sessions ---\n");
+for (int i = 0; i < sessionCount; i++) {
+int dur = atoi(sessions[i].duration);
+const char *status = (dur > TIME_LIMIT) ? "EXPIRED" : "ACTIVE";
+printf("\n[%d] %s (%s)\n Host: %s\n Location: %s\n Time: %s\n Duration: %s minutes\n",
+i+1, sessions[i].topic, status, sessions[i].host, sessions[i].location, sessions[i].time, sessions[i].duration);
+}
+}
+void viewMatchingSessions() {
+if (strlen(currentSubject) == 0) {
+printf("You must be logged in to view matching sessions.\n");
+return;
+}
+char subLower[300];
+toLowerCase(currentSubject, subLower);
+int foundIndexes[MAX_SESSIONS];
+int foundCount = 0;
+printf("\n--- Matching Sessions for %s (%s) ---\n", currentUser, currentSubject);
+for (int i = 0; i < sessionCount; i++) {
+char topicLower[400];
+toLowerCase(sessions[i].topic, topicLower);
+if (strstr(topicLower, subLower) != NULL) {
+foundIndexes[foundCount++] = i;
+int dur = atoi(sessions[i].duration);
+const char *status = (dur > TIME_LIMIT) ? "EXPIRED" : "ACTIVE";
+printf("\n[%d] %s (%s)\n Host: %s\n Location: %s\n Time: %s\n Duration: %s minutes\n",
+foundCount, sessions[i].topic, status, sessions[i].host, sessions[i].location, sessions[i].time, sessions[i].duration);
+}
+}
+if (foundCount == 0) {
+printf("\nNo matching sessions found for %s.\n", currentSubject);
+return;
+}
+int choice;
+printf("\nEnter the number of the session to view host details (0 to cancel): ");
+if (scanf("%d", &choice) != 1) { while(getchar()!='\n'); printf("Invalid input.\n"); return; }
+if (choice == 0) return;
+if (choice < 1 || choice > foundCount) {
+printf("Invalid choice.\n");
+return;
+}
+int sessionIndex = foundIndexes[choice - 1];
+showUserDetails(sessions[sessionIndex].host);
+}
+void showUserDetails(const char *hostName) {
+for (int i = 0; i < userCount; i++) {
+if (strcmp(users[i].username, hostName) == 0) {
+printf("\n===== SESSION HOST DETAILS =====\n");
+printf("Full Name: %s\n", users[i].fullName);
+printf("Username: %s\n", users[i].username);
+printf("Email: %s\n", users[i].email);
+printf("Gender: %s\n", users[i].gender);
+printf("Branch: %s\n", users[i].branch);
+printf("Subject: %s\n", users[i].subject);
+printf("Semester: %d\n", users[i].semester);
+printf("Hobbies: %s\n", users[i].hobbies);
+printf("Bio: %s\n\n", users[i].bio);
+return;
+}
+}
+printf("\nNo user details found for host: %s\n", hostName);
+}
+void filterSessions() {
+if (sessionCount == 0) {
+printf("\nNo sessions available to filter.\n");
+return;
+}
+printf("\n====== FILTER SESSIONS ======\n");
+printf("1. Filter by Branch\n2. Filter by Hobby\n3. Filter by Semester\nEnter choice: ");
+int choice;
+if (scanf("%d", &choice) != 1) { while(getchar()!='\n'); printf("Invalid input.\n"); return; }
+char input[300];
+int semChoice;
+if (choice == 1) {
+printf("\nEnter branch to filter (partial allowed):\n");
+getchar(); fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = '\0';
+char inputLower[400]; toLowerCase(input, inputLower);
+int found = 0;
+printf("\n--- Sessions filtered by branch: %s ---\n", input);
+for (int i = 0; i < sessionCount; i++) {
+for (int u = 0; u < userCount; u++) {
+if (strcmp(sessions[i].host, users[u].username) == 0) {
+char branchLower[400]; toLowerCase(users[u].branch, branchLower);
+if (strstr(branchLower, inputLower) != NULL) {
+int dur = atoi(sessions[i].duration);
+const char *status = (dur > TIME_LIMIT) ? "EXPIRED" : "ACTIVE";
+printf("\nSession: %s (%s)\nHost: %s\nLocation: %s\nTime: %s\n",
+sessions[i].topic, status, sessions[i].host, sessions[i].location, sessions[i].time);
+found = 1;
+}
+}
+}
+}
+if (!found) printf("\nNo sessions found for this branch.\n");
+}
+else if (choice == 2) {
+printf("\nEnter hobby to filter (e.g., Coding, Football):\n");
+getchar(); fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = '\0';
+char inputLower[400]; toLowerCase(input, inputLower);
+int found = 0;
+printf("\n--- Sessions filtered by hobby: %s ---\n", input);
+for (int i = 0; i < sessionCount; i++) {
+for (int u = 0; u < userCount; u++) {
+if (strcmp(sessions[i].host, users[u].username) == 0) {
+char hobbyLower[600]; toLowerCase(users[u].hobbies, hobbyLower);
+if (strstr(hobbyLower, inputLower) != NULL) {
+int dur = atoi(sessions[i].duration);
+const char *status = (dur > TIME_LIMIT) ? "EXPIRED" : "ACTIVE";
+printf("\nSession: %s (%s)\nHost: %s\nLocation: %s\nTime: %s\n",
+sessions[i].topic, status, sessions[i].host, sessions[i].location, sessions[i].time);
+found = 1;
+}
+}
+}
+}
+if (!found) printf("\nNo sessions found for this hobby.\n");
+}
+else if (choice == 3) {
+printf("\nEnter semester to filter (1 - 10): ");
+if (scanf("%d", &semChoice) != 1) { while(getchar()!='\n'); printf("Invalid input.\n"); return; }
+int found = 0;
+printf("\n--- Sessions filtered by semester: %d ---\n", semChoice);
+for (int i = 0; i < sessionCount; i++) {
+for (int u = 0; u < userCount; u++) {
+if (strcmp(sessions[i].host, users[u].username) == 0 && users[u].semester == semChoice) {
+int dur = atoi(sessions[i].duration);
+const char *status = (dur > TIME_LIMIT) ? "EXPIRED" : "ACTIVE";
+printf("\nSession: %s (%s)\nHost: %s\nLocation: %s\nTime: %s\n",
+sessions[i].topic, status, sessions[i].host, sessions[i].location, sessions[i].time);
+found = 1;
+}
+}
+}
+if (!found) printf("\nNo sessions found for this semester.\n");
+}
+else {
+printf("\nInvalid option.\n");
+}
+}
+void viewEvents() {
+if (eventCount == 0) {
+printf("\nNo campus events available.\n");
+return;
+}
+printf("\n--- Upcoming Campus Events ---\n");
+for (int i = 0; i < eventCount; i++) {
+printf("\n[%d] %s\n Field: %s\n Date: %s\n", i+1, events[i].name, events[i].field, events[i].date);
+}
+}
+void addEvent() {
+Event e;
+getchar(); 
+printf("\nEnter event name: ");
+fgets(e.name, sizeof(e.name), stdin); e.name[strcspn(e.name, "\n")] = '\0'; remove_pipes(e.name);
+printf("Enter event field (e.g., Sports, Tech, Arts): ");
+fgets(e.field, sizeof(e.field), stdin); e.field[strcspn(e.field, "\n")] = '\0'; remove_pipes(e.field);
+printf("Enter event date (e.g., 2025-11-10): ");
+fgets(e.date, sizeof(e.date), stdin); e.date[strcspn(e.date, "\n")] = '\0'; remove_pipes(e.date);
+events[eventCount++] = e; saveEvents();
+printf("\n Event added: %s (%s) on %s\n", e.name, e.field, e.date);
+}
+void menu() {
+while (1) {
+printf("\n========== TALKIFY MENU ==========\n");
+printf("1. Create Study Session\n");
+printf("2. View All Sessions\n");
+printf("3. View Matching Sessions (by your subject)\n");
+printf("4. Filter Sessions (branch/hobby/semester)\n");
+printf("5. View Campus Events\n");
+printf("6. Add Campus Event\n");
+printf("7. Logout\n");
+printf("Enter choice: ");
+int c;
+if (scanf("%d", &c) != 1) { while(getchar()!='\n'); printf("Invalid input.\n"); continue; }
+if (c == 1) createSession();
+else if (c == 2) viewSessions();
+else if (c == 3) viewMatchingSessions();
+else if (c == 4) filterSessions();
+else if (c == 5) viewEvents();
+else if (c == 6) addEvent();
+else if (c == 7) { printf("Logged out: %s\n", currentUser); currentUser[0] = '\0'; currentBranch[0] = '\0'; currentSubject[0] = '\0'; return; }
+else printf("Invalid choice.\n");
+}
+}
+int main() {
+loadFiles();
+printf("Welcome to Talkify — StudyMate & Activity Finder (Pipe-separated storage)\n");
+while (1) {
+printf("\n====== MAIN ======\n");
+printf("1. Register\n");
+printf("2. Login\n");
+printf("3. Exit\n");
+printf("Enter choice: ");
+int choice;
+if (scanf("%d", &choice) != 1) { while(getchar()!='\n'); printf("Invalid input.\n"); continue; }
+if (choice == 1) registerUser();
+else if (choice == 2) {
+if (loginUser()) menu();
+} else if (choice == 3) {
+printf("Goodbye!\n"); break;
+} else {
+printf("Invalid choice.\n");
+}
+}
+return 0;
+}
